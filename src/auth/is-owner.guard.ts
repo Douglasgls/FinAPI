@@ -27,7 +27,6 @@ export class IsOwnerGuard implements CanActivate {
       return false;
     }
 
-    console.log(dataJWT.id, request.params.id);
     if (dataJWT.id !== request.params.id) {
       return false;
     }

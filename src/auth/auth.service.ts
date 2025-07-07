@@ -4,6 +4,7 @@ import { UserService } from '../user/user.service';
 import { comparePassword, generateJWT } from '../utils/utils';
 import { ConfigService } from '@nestjs/config';
 import { AuthTokenDto } from './dto/auth.dto';
+import { AllMethods } from 'supertest/types';
 
 @Injectable()
 export class AuthService {
@@ -55,5 +56,15 @@ export class AuthService {
     const newAccess_token = await generateJWT(newPayload);
 
     return { refresh_token: newAccess_token };
+  }
+
+  async validateUser(id:string): Promise<any> {
+    const user = await this.usersService.findOneById(id);
+    
+    if (!user) {
+      return null;
+    }
+
+    return user;
   }
 }

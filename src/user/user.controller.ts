@@ -37,7 +37,6 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(UserGuard, IsOwnerGuard)
   async getOne(@Param('id') id: string): Promise<UserResponseDTO | null> {
-    console.log(id);
     return await this.userService.getOne(id);
   }
 
