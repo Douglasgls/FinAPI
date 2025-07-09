@@ -2,7 +2,6 @@ import { ITransactionRepository } from '../../repository/Itransactions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactions } from '../../entity/transactions.entity';
 import { Between, Repository } from 'typeorm';
-import { omit } from 'lodash';
 
 export class TransactionsRepository implements ITransactionRepository {
     constructor(
@@ -33,7 +32,7 @@ export class TransactionsRepository implements ITransactionRepository {
     }
 
     async findAllByUserId(userId: string): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { userId } });
+        return this.transactionsRepository.find({ where: { user: { id: userId } } });
     }
 
     async getAll(): Promise<Transactions[]> {
@@ -59,45 +58,45 @@ export class TransactionsRepository implements ITransactionRepository {
     async findByUserIdAndDateRange(userId: string, startDate: Date, endDate: Date): Promise<Transactions[]> {
         return this.transactionsRepository.find({
             where: {
-                userId,
+                user: { id: userId },
                 createdAt: Between(startDate, endDate),
             },
         });
     }
 
     async findByUserIdAndCategory(userId: string, category: string): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { userId, category } });
+        return await this.transactionsRepository.find({ where: { user: { id: userId }, category } });
     }
 
     async findByUserIdAndType(userId: string, type: string): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { userId, type } });
+        return this.transactionsRepository.find({ where: { user: { id: userId }, type } });
     }
 
     async findByUserIdAndDescription(userId: string, description: string): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { userId, description } });
+        return this.transactionsRepository.find({ where: { user: { id: userId }, description } });
     }
 
     async findByUserIdAndValueRange(userId: string, minValue: number, maxValue: number): Promise<Transactions[]> {
         return this.transactionsRepository.find({
             where: {
-                userId,
+                user: { id: userId },
                 value: Between(minValue, maxValue),
             },
         });
     }
 
     async findByUserIdAndCreatedAt(userId: string, createdAt: Date): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { userId, createdAt } });
+        return this.transactionsRepository.find({ where: { user: { id: userId }, createdAt } });
     }
 
     async findByUserIdAndTypeAndCategory(userId: string, type: string, category: string): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { userId, type, category } });
+        return this.transactionsRepository.find({ where: { user: { id: userId }, type, category } });
     }
 
     async findByUserIdAndTypeAndDateRange(userId: string, type: string, startDate: Date, endDate: Date): Promise<Transactions[]> {
         return this.transactionsRepository.find({
             where: {
-                userId,
+                user: { id: userId },
                 type,
                 createdAt: Between(startDate, endDate),
             },
@@ -107,7 +106,7 @@ export class TransactionsRepository implements ITransactionRepository {
     async findByUserIdAndCategoryAndDateRange(userId: string, category: string, startDate: Date, endDate: Date): Promise<Transactions[]> {
         return this.transactionsRepository.find({
             where: {
-                userId,
+                user: { id: userId },
                 category,
                 createdAt: Between(startDate, endDate),
             },
@@ -117,7 +116,7 @@ export class TransactionsRepository implements ITransactionRepository {
     async findByUserIdAndTypeAndCategoryAndDateRange(userId: string, type: string, category: string, startDate: Date, endDate: Date): Promise<Transactions[]> {
         return this.transactionsRepository.find({
             where: {
-                userId,
+                user: { id: userId },
                 type,
                 category,
                 createdAt: Between(startDate, endDate),
@@ -128,7 +127,7 @@ export class TransactionsRepository implements ITransactionRepository {
     async findByUserIdAndTypeAndValueRange(userId: string, type: string, minValue: number, maxValue: number): Promise<Transactions[]> {
         return this.transactionsRepository.find({
             where: {
-                userId,
+                user: { id: userId },
                 type,
                 value: Between(minValue, maxValue),
             },
@@ -138,7 +137,7 @@ export class TransactionsRepository implements ITransactionRepository {
     async findByUserIdAndCategoryAndValueRange(userId: string, category: string, minValue: number, maxValue: number): Promise<Transactions[]> {
         return this.transactionsRepository.find({
             where: {
-                userId,
+                user: { id: userId },
                 category,
                 value: Between(minValue, maxValue),
             },
@@ -148,7 +147,7 @@ export class TransactionsRepository implements ITransactionRepository {
     async findByUserIdAndTypeAndCategoryAndValueRange(userId: string, type: string, category: string, minValue: number, maxValue: number): Promise<Transactions[]> {
         return this.transactionsRepository.find({
             where: {
-                userId,
+                user: { id: userId },
                 type,
                 category,
                 value: Between(minValue, maxValue),
@@ -159,7 +158,7 @@ export class TransactionsRepository implements ITransactionRepository {
     async findByUserIdAndDescriptionAndDateRange(userId: string, description: string, startDate: Date, endDate: Date): Promise<Transactions[]> {
         return this.transactionsRepository.find({
             where: {
-                userId,
+                user: { id: userId },
                 description,
                 createdAt: Between(startDate, endDate),
             },
@@ -167,17 +166,17 @@ export class TransactionsRepository implements ITransactionRepository {
     }
 
     async findByUserIdAndDescriptionAndType(userId: string, description: string, type: string): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { userId, description, type } });
+        return this.transactionsRepository.find({ where: { user: { id: userId }, description, type } });
     }
 
     async findByUserIdAndDescriptionAndCategory(userId: string, description: string, category: string): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { userId, description, category } });
+        return this.transactionsRepository.find({ where: { user: { id: userId }, description, category } });
     }
 
     async findByUserIdAndDescriptionAndValueRange(userId: string, description: string, minValue: number, maxValue: number): Promise<Transactions[]> {
         return this.transactionsRepository.find({
             where: {
-                userId,
+                user: { id: userId },
                 description,
                 value: Between(minValue, maxValue),
             },
@@ -185,10 +184,10 @@ export class TransactionsRepository implements ITransactionRepository {
     }
 
     async findByUserIdAndDescriptionAndCreatedAt(userId: string, description: string, createdAt: Date): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { userId, description, createdAt } });
+        return this.transactionsRepository.find({ where: { user: { id: userId }, description, createdAt } });
     }
 
     async findByUserIdAndDescriptionAndUpdatedAt(userId: string, description: string): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { userId, description } });
+        return this.transactionsRepository.find({ where: { user: { id: userId }, description } });
     }
 }

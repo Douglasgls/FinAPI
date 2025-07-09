@@ -1,14 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn,JoinColumn } from 'typeorm';
 import { IsNotEmpty, Min } from 'class-validator';
+import { User } from 'src/user/entity/user.entity';
 
 @Entity('transactions')
 export class Transactions {
     @PrimaryGeneratedColumn('uuid')
     id?: string;
 
-    @Column()
-    @IsNotEmpty()
-    userId: string;
+    @ManyToOne(() => User , user => user.transactions)
+    @JoinColumn({ name: 'userId' })
+    user?: User;
 
     @Column({ type: 'decimal' })
     @IsNotEmpty()
@@ -28,4 +29,7 @@ export class Transactions {
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
+
+    @Column({ type: 'uuid', nullable: true })
+    userId?: string;
 }

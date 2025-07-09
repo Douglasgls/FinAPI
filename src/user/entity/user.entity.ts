@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Category } from 'src/category/entity/category.entity';
+import { Transactions } from 'src/transactions/entity/transactions.entity';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -7,11 +9,16 @@ export class User {
   }
 
   @PrimaryGeneratedColumn('uuid')
-  @Column({ primary: true, unique: true })
   id?: string;
 
   @Column()
   username: string;
+
+  @OneToMany(() => Category, category => category.user)
+  categories?: Category[]
+
+  @OneToMany(() => Transactions, transaction => transaction.user)
+  transactions?: Transactions[]
 
   @Column()
   password_hash: string;
