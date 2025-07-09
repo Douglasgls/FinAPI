@@ -42,7 +42,7 @@ export class AuthService {
     const payload: { email: string; username: string; id: string } =
       await this.jwtService.verifyAsync(access_token, {
         secret: this.configService.get<string>('JWT_SECRET'),
-        ignoreExpiration: true,
+        ignoreExpiration: false,
       });
 
     if (!payload) {
@@ -58,13 +58,13 @@ export class AuthService {
     return { refresh_token: newAccess_token };
   }
 
-  async validateUser(id:string): Promise<any> {
-    const user = await this.usersService.findOneById(id);
+  // async validateUser(id:string): Promise<any> {
+  //   const user = await this.usersService.findOneById(id);
     
-    if (!user) {
-      return null;
-    }
+  //   if (!user) {
+  //     return null;
+  //   }
 
-    return user;
-  }
+  //   return user;
+  // }
 }

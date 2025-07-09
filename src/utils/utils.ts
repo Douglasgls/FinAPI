@@ -18,7 +18,7 @@ export async function verifyJWT(token: string): Promise<boolean> {
   try {
     await jwtService.verifyAsync(token, {
       secret: configService.get<string>('JWT_SECRET'),
-      ignoreExpiration: true,
+      ignoreExpiration: false,
     });
     return true;
   } catch {
