@@ -1,9 +1,10 @@
-import { Body, Controller,Delete,Get,HttpCode,Post,UseGuards } from '@nestjs/common';
+import { Body, Controller,Delete,Get,HttpCode,Param,Patch,Post,UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/createCategory';
 import { Category } from './entity/category.entity';
 import { User } from 'src/transactions/decorators/user.decorator';
+import { UpdatePartialCategoryDto } from './dto/updateCategory';
 
 @Controller('category')
 export class CategoryController {
@@ -31,10 +32,10 @@ export class CategoryController {
         return this.categoryService.getCategoryById(userId, id);
     }
 
-    @Post(':id')
+    @Patch(':id')
     @UseGuards(JwtAuthGuard)
     @HttpCode(200)
-    async updateCategory(@User('id') userId: string, id: string, updatePartialCategoryDto: any): Promise<Category> {
+    async updateCategory(@User('id') userId: string, @Param('id') id: string, @Body() updatePartialCategoryDto: UpdatePartialCategoryDto): Promise<Category> {
         return this.categoryService.updateCategory(userId,
             id,
             updatePartialCategoryDto,
@@ -44,7 +45,7 @@ export class CategoryController {
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
     @HttpCode(204)
-    async deleteCategory(@User('id') userId: string, id: string): Promise<any> {
+    async deleteCategory(@User('id') userId: string, @Param('id') id: string): Promise<any> {
         return this.categoryService.deleteCategory(userId, id);
     }
 

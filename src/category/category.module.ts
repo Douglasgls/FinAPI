@@ -13,6 +13,12 @@ import { Category } from './entity/category.entity';
       provide: 'ICategoryRepository',
       useClass: categoryRepository,
     },
-  ]
+  ],
+  exports: [
+    CategoryService,
+    {
+    provide: 'ICategoryRepository',
+    useClass: categoryRepository,
+  }],
 })
 export class CategoryModule {}

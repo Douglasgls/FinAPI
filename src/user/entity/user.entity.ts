@@ -1,3 +1,4 @@
+import { BudgetsEntity } from 'src/budgets/entity/budgets.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { Transactions } from 'src/transactions/entity/transactions.entity';
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
@@ -19,6 +20,9 @@ export class User {
 
   @OneToMany(() => Transactions, transaction => transaction.user)
   transactions?: Transactions[]
+
+  @OneToMany(() => BudgetsEntity, budgets => budgets.user)
+  budgets?: BudgetsEntity[]
 
   @Column()
   password_hash: string;

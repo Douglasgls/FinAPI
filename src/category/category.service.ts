@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { ICategoryRepository } from './repository/Icategory';
 import { Category } from './entity/category.entity';
 import { CreateCategoryDto } from './dto/createCategory';
@@ -22,7 +22,7 @@ export class CategoryService {
     );
 
     if (existingCategory) {
-        throw new Error('Category already exists');
+        throw new BadRequestException('Category already exists');
     }
 
     const name = createCategoryDto.name.toUpperCase();
@@ -48,31 +48,40 @@ export class CategoryService {
     async updateCategory(
         userId: string,
         id: string,
-        updatePartialCategoryDto: UpdatePartialCategoryDto,
+        updatePartialCategory: UpdatePartialCategoryDto,
     ): Promise<Category> {
         const existingCategory = await this.categoryRepository.getCategoryById(userId, id);
         if (!existingCategory) {
-            throw new Error('Category not found');
+            throw new BadRequestException('Category not found');
         }
-        const existingCategoryByName = await this.categoryRepository.getCategoryByName(
-            userId,
-            updatePartialCategoryDto.name.toUpperCase(),
-        );
+              
+        if(updatePartialCategory && updatePartialCategory.name) {
+            const existingCategoryByName = await this.categoryRepository.getCategoryByName(
+                userId,
+                updatePartialCategory.name.toUpperCase(),
+            );
 
-        if (existingCategoryByName && existingCategoryByName.id !== id) {
-            throw new Error('Category name already exists');
+            if (existingCategoryByName && existingCategoryByName.id === id) {
+                throw new BadRequestException('Category name already exists');
+            }
+
+            updatePartialCategory.name = updatePartialCategory.name.toUpperCase();
         }
 
-        updatePartialCategoryDto.name = updatePartialCategoryDto.name.toUpperCase();
-
-        if (updatePartialCategoryDto.description) {
-            updatePartialCategoryDto.description = updatePartialCategoryDto.description.toUpperCase();
+        if (updatePartialCategory && updatePartialCategory.description) {
+            updatePartialCategory.description = updatePartialCategory.description.toUpperCase();
         }
 
-        return this.categoryRepository.updateCategory(userId, id, updatePartialCategoryDto);
+        console.log(updatePartialCategory)
+        return this.categoryRepository.updateCategory(userId, id, updatePartialCategory);
     }
 
     async deleteCategory(userId: string, id: string): Promise<any> {
+        const existingCategory = await this.categoryRepository.getCategoryById(userId, id);
+        if (!existingCategory) {
+            throw new BadRequestException('Category not found');
+        }
+
         return this.categoryRepository.deleteCategory(userId, id);
     }
 }

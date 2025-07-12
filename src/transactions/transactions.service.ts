@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 import { ITransactionRepository } from '../transactions/repository/Itransactions';
 import { Transactions } from './entity/transactions.entity';
@@ -7,12 +7,14 @@ import { createTransactionDto } from './dto/createTransaction';
 import { IUserRepository } from 'src/user/repository/IUserRepository';
 import { updateTransactionDto } from './dto/updateTransaction';
 import { omit } from 'lodash';
+import { ICategoryRepository } from 'src/category/repository/Icategory';
 
 @Injectable()
 export class TransactionsService {
     constructor(
         @Inject('ITransactionRepository') private readonly transactionRepository: ITransactionRepository,
         @Inject('IUserRepository') private readonly userRepository: IUserRepository,
+        @Inject('ICategoryRepository') private readonly categoryRepository: ICategoryRepository
     ) {}
 
     async createTransaction(transaction: createTransactionDto, userId: string): Promise<Transactions> {
@@ -23,6 +25,18 @@ export class TransactionsService {
             throw new UnauthorizedException()
         }
 
+        const existingCategory = await this.categoryRepository.getCategoryByName(userId, transaction.category.toUpperCase());
+    
+        if (!existingCategory) {
+            throw new BadRequestException('Category not found');
+        }
+
+        if (existingCategory.userId !== userId) {
+            throw new UnauthorizedException(
+                'You do not have permission to create a transaction for this category.',
+            );
+        }
+
         const transactionPyload: Transactions = {
             ...transaction,
             createdAt: new Date(),
@@ -30,13 +44,15 @@ export class TransactionsService {
             type: transaction.type.toUpperCase() as 'INCOME' | 'EXPENSE', 
             value: Number(transaction.value),
             description: transaction.description.toUpperCase(),
-            category: transaction.category.toUpperCase(),
             user: user,
+            category: existingCategory
         }; 
 
         const createdTransaction = await this.transactionRepository.create(transactionPyload);
+        
+        const category = existingCategory.name 
 
-        return omit(createdTransaction, ['user']);
+        return omit({...createdTransaction, category: category}, ['user','categoryId']);
     }
 
     async updatePartialTransaction(userId: string, transactionId: string, transaction: updateTransactionDto): Promise<Transactions> {
@@ -48,6 +64,7 @@ export class TransactionsService {
             );
         }
         const existingTransaction = await this.transactionRepository.findOneByID(transactionId);
+
         if (!existingTransaction) {
             throw new UnauthorizedException(
                 'Transaction not found. Please provide a valid transaction ID.',
@@ -63,19 +80,35 @@ export class TransactionsService {
             transaction.type = transaction.type.toUpperCase() as 'INCOME' | 'EXPENSE';
         }
 
-        transaction.category = transaction.category?.toUpperCase();
         transaction.description = transaction.description?.toUpperCase();
 
-        const updatedTransaction = await this.transactionRepository.update(transactionId, {
-            ...existingTransaction,
-            ...transaction,
-        });
+        let category: any | undefined;
 
-        if (!updatedTransaction) {
-            throw new UnauthorizedException(
-                'Failed to update transaction. Please try again.',
-            );
+        if(transaction.category) {
+            category = await this.categoryRepository.getCategoryByName(userId, transaction.category.toUpperCase());
+
+            if (!category) {
+                throw new BadRequestException('Category not found');
+            }
+
+            if (category.userId !== userId) {
+                throw new UnauthorizedException(
+                    'You do not have permission to create a transaction for this category.',
+                );
+            }
         }
+
+        const updated = {
+        ...existingTransaction,
+        ...transaction,
+        };
+
+        if (category) {
+            updated.category = category;
+            updated.categoryId = category.id;
+        }
+
+        const updatedTransaction = await this.transactionRepository.update(transactionId, updated as Transactions);
 
         return omit(updatedTransaction, ['user']);
     }
@@ -100,13 +133,7 @@ export class TransactionsService {
                 'You do not have permission to delete this transaction.',
             );
         }
-        const deleted = await this.transactionRepository.delete(transactionId);
-
-        if (!deleted) {
-            throw new UnauthorizedException(
-                'Failed to delete transaction. Please try again.',
-            );
-        }
+        await this.transactionRepository.delete(transactionId);
     }
 
     async getAllTransactions(userId: string): Promise<Transactions[]> {

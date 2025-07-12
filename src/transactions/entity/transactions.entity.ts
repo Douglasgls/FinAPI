@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn,JoinColumn } from 'typeorm';
 import { IsNotEmpty, Min } from 'class-validator';
 import { User } from 'src/user/entity/user.entity';
+import { Category } from 'src/category/entity/category.entity';
 
 @Entity('transactions')
 export class Transactions {
@@ -19,9 +20,9 @@ export class Transactions {
     @Column()
     description: string;
 
-    @Column() 
-    @IsNotEmpty()
-    category: string;
+   @ManyToOne(() => Category, category => category.transactions, { onDelete: 'CASCADE' })
+   @JoinColumn({ name: 'categoryId' })
+    category?: Category;
 
     @Column({ type: 'enum', enum: ['INCOME', 'EXPENSE']})
     @IsNotEmpty()
@@ -32,4 +33,7 @@ export class Transactions {
 
     @Column({ type: 'uuid', nullable: true })
     userId?: string;
+
+    @Column({ type: 'uuid', nullable: true })
+    categoryId?: string;
 }

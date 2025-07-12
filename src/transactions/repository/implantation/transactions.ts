@@ -40,7 +40,7 @@ export class TransactionsRepository implements ITransactionRepository {
     }
 
     async findByCategory(category: string): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { category } });
+        return this.transactionsRepository.find({ where: { categoryId: category } });
     }
 
     async findByType(type: string): Promise<Transactions[]> {
@@ -65,7 +65,7 @@ export class TransactionsRepository implements ITransactionRepository {
     }
 
     async findByUserIdAndCategory(userId: string, category: string): Promise<Transactions[]> {
-        return await this.transactionsRepository.find({ where: { user: { id: userId }, category } });
+        return await this.transactionsRepository.find({ where: { user: { id: userId }, categoryId: category } });
     }
 
     async findByUserIdAndType(userId: string, type: string): Promise<Transactions[]> {
@@ -90,7 +90,7 @@ export class TransactionsRepository implements ITransactionRepository {
     }
 
     async findByUserIdAndTypeAndCategory(userId: string, type: string, category: string): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { user: { id: userId }, type, category } });
+        return this.transactionsRepository.find({ where: { user: { id: userId }, type, categoryId: category } });
     }
 
     async findByUserIdAndTypeAndDateRange(userId: string, type: string, startDate: Date, endDate: Date): Promise<Transactions[]> {
@@ -107,7 +107,7 @@ export class TransactionsRepository implements ITransactionRepository {
         return this.transactionsRepository.find({
             where: {
                 user: { id: userId },
-                category,
+                categoryId: category,
                 createdAt: Between(startDate, endDate),
             },
         });
@@ -118,7 +118,7 @@ export class TransactionsRepository implements ITransactionRepository {
             where: {
                 user: { id: userId },
                 type,
-                category,
+                categoryId: category,
                 createdAt: Between(startDate, endDate),
             },
         });
@@ -138,7 +138,7 @@ export class TransactionsRepository implements ITransactionRepository {
         return this.transactionsRepository.find({
             where: {
                 user: { id: userId },
-                category,
+                categoryId: category,
                 value: Between(minValue, maxValue),
             },
         });
@@ -149,7 +149,7 @@ export class TransactionsRepository implements ITransactionRepository {
             where: {
                 user: { id: userId },
                 type,
-                category,
+                categoryId: category,
                 value: Between(minValue, maxValue),
             },
         });
@@ -170,7 +170,7 @@ export class TransactionsRepository implements ITransactionRepository {
     }
 
     async findByUserIdAndDescriptionAndCategory(userId: string, description: string, category: string): Promise<Transactions[]> {
-        return this.transactionsRepository.find({ where: { user: { id: userId }, description, category } });
+        return this.transactionsRepository.find({ where: { user: { id: userId }, description, categoryId: category } });
     }
 
     async findByUserIdAndDescriptionAndValueRange(userId: string, description: string, minValue: number, maxValue: number): Promise<Transactions[]> {

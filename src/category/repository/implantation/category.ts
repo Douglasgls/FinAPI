@@ -31,21 +31,24 @@ export class categoryRepository implements ICategoryRepository {
         });
     }
 
-    async getCategoryById(userId: string, id: string): Promise<Category | null> {
-        return this.categoryRepository.findOne({
-            where: { user: {id: userId} },
+    async getCategoryById(userId: string, categoryId: string): Promise<Category | null> {
+        return this.categoryRepository.findOneBy({
+            userId: userId,
+            id: categoryId,
         });
     }
 
     async getCategoryByName(userId: string, name: string): Promise<Category | null> {
-        return this.categoryRepository.findOne({
-            where: { user: {id: userId} },
+        return await this.categoryRepository.findOneBy({
+            name: name,
+            user: {id: userId},
         });
     }
 
     async updateCategory(userId: string, id: string, UpdatePartialCategoryDto: UpdatePartialCategoryDto): Promise<Category> {
-        const category = await this.categoryRepository.findOne({
-            where: { user: {id: userId} },
+        const category = await this.categoryRepository.findOneBy({
+            id: id,
+            user: {id: userId},
         })
 
         return this.categoryRepository.save({

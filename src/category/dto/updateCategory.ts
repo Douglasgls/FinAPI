@@ -1,9 +1,9 @@
-import { IsNotEmpty } from "class-validator";
+import { IsOptional } from "class-validator";
 
 export class UpdatePartialCategoryDto {
-    @IsNotEmpty()
-    name: string;
-    @IsNotEmpty()
+    @IsOptional()
+    name?: string;
+    @IsOptional()
     description?: string;
 }
 

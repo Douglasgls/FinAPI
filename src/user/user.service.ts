@@ -5,12 +5,15 @@ import { omit } from 'lodash';
 import { IUserRepository } from './repository/IUserRepository';
 import { User } from './entity/user.entity';
 import { plainToInstance } from 'class-transformer';
+import { ICategoryRepository } from 'src/category/repository/Icategory';
+import { CreateCategoryDto } from 'src/category/dto/createCategory';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject('IUserRepository')
     private readonly repositoryUser: IUserRepository,
+    @Inject('ICategoryRepository') private readonly categoryRepository: ICategoryRepository,
   ) {}
 
   async getAll(): Promise<UserResponseDTO[]> {
@@ -37,13 +40,28 @@ export class UserService {
     user.password_hash = await encryptPassword(user.password_hash);
     user.username = user.username.toUpperCase();
 
-    const userWithFields = {
+    const userid = crypto.randomUUID();
+
+    const userWithFields: User = {
       ...user,
       created_at: new Date(),
       updated_at: null,
+      id: userid
     };
 
     const created = await this.repositoryUser.create(userWithFields);
+
+     const categories: CreateCategoryDto[] = [
+      { name: 'Food', description: 'Food category'},
+      { name: 'Clothing', description: 'Clothing category'},
+      { name: 'Entertainment', description: 'Entertainment category'},
+      { name: 'Health', description: 'Health category'},
+    ]; 
+
+    for (const category of categories) {
+      await this.categoryRepository.createCategory(userid, category);
+    }
+
     return omit(created, ['password_hash']) as UserResponseDTO;
   }
 
