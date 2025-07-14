@@ -72,7 +72,6 @@ export class CategoryService {
             updatePartialCategory.description = updatePartialCategory.description.toUpperCase();
         }
 
-        console.log(updatePartialCategory)
         return this.categoryRepository.updateCategory(userId, id, updatePartialCategory);
     }
 
